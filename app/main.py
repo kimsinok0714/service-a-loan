@@ -80,7 +80,7 @@ async def predict(request: LoanRequest):
             "approved": result["approved"],
             "probability": result["probability"],
             "risk_grade": result["risk_grade"],
-            "model_version": model.version,
+            "model_version": model.model_version,
             "latency_ms": round(latency_ms, 2)
         }
 

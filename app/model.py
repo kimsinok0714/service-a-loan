@@ -145,7 +145,7 @@ class LoanModel:
         return {
             "approved": approved,
             "probability": probability,
-            "risK_grade": risk_grade
+            "risk_grade": risk_grade
         }
 
 
