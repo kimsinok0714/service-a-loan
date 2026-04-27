@@ -117,9 +117,8 @@ class LoanModel:
     #     logging.info("모델 로드 완료!!")
 
 
-
-    @staticmethod
     # 내부 메소드
+    @staticmethod
     def _map_to_korean(data: dict[str, Any]) -> dict[str, Any]:
         return {FIELD_TO_COLUMN.get(k, k): v for k, v in data.items()} # {"age": 30} → {"나이": 30}
     
