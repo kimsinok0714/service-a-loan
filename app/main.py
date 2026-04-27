@@ -4,6 +4,9 @@ from contextlib import asynccontextmanager
 from app.model import LoanModel
 from app.schemas import LoanRequest, LoanResponse
 from fastapi import HTTPException
+import uuid
+from datetime import datetime
+import json
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -45,7 +48,7 @@ app = FastAPI(
 @app.get("/")
 async def root():
     logger.info("Start FastAPI Server")
-    return {"message": "Hello world!!"}
+    return {"message": "FastAPI 서버 동작"}
 
 
 @app.get("/health")
@@ -57,16 +60,35 @@ async def health_check():
         return {"status": "unhealthy", "message": "모델이 로드되지 않았습니다."}
     
 
-
+# 추론 
 @app.post("/predict", response_model=LoanResponse)
 async def predict(request: LoanRequest):
     model = app.state.model
+    request_id = str(uuid.uuid4()) 
+    start_time = datetime.now()
 
     try:
         # Pydantic 객체를 딕셔너리로 변환해 모델에 전달
         result = model.predict(request.model_dump())
+        latency_ms = (datetime.now() - start_time).total_seconds() * 1000
+
+        # CloudWatch에 남길 예측 로그
+        log_data = {
+            "request_id": request_id,
+            "timestamp": start_time.isoformat(),
+            **request.model_dump(),
+            "approved": result["approved"],
+            "probability": result["probability"],
+            "risk_grade": result["risk_grade"],
+            "model_version": model.version,
+            "latency_ms": round(latency_ms, 2)
+        }
+
+        logger.info(f"PREDICTION_LOG: {json.dumps(log_data, ensure_ascii=False)}")
+
         #  결과 딕셔너리를 응답 스키마로 변환하여 반환
         return LoanResponse(**result)
+    
     except RuntimeError as e:  # 모델이 로드되지 않은 경우
         raise HTTPException(status_code=503, detail=str(e))
     except ValueError as e: 
