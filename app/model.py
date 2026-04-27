@@ -55,7 +55,7 @@ class LoanModel:
         s3 = boto3.client("s3", region_name= os.environ.get("AWS_REGION", "ap-northeast-2"))
         self.pipeline = self._load_pkl_from_s3(s3, bucket, f"{prefix}/loan_pipeline.pkl")
         self.label_encoders = self._load_pkl_from_s3(s3, bucket, f"{prefix}/label_encoders.pkl")
-        self.feature_names = self._load_pkl_from_s3(s3, bucket, f"{prefix}/featuer_names.pkl")
+        self.feature_name = self._load_pkl_from_s3(s3, bucket, f"{prefix}/feature_names.pkl")
 
         logger.info("S3에서 모델 로드 완료!!")
 
@@ -89,7 +89,7 @@ class LoanModel:
         self.feature_name = joblib.load(feature_names_path)
         self.label_encoders = joblib.load(label_encoders_path)
 
-        logging.info("로컬 모델 로드 완료!!")
+        logger.info("로컬 모델 로드 완료!!")
 
 
 
