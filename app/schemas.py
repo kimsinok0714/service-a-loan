@@ -41,7 +41,7 @@ class LoanRequest(BaseModel):
     }
 
 
-
+# 응답 스키마
 class LoanResponse(BaseModel):
     approved: bool = Field(..., description="대출 숭인 여부(True: 승인, False: 거부)")
     probability: float = Field(..., description="대출 승인 확률", ge=0.0, le=1.0)
