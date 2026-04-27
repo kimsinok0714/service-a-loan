@@ -4,10 +4,10 @@ from pydantic import BaseModel, Field
 
 class LoanRequest(BaseModel):
     """대출 심사를 위한 고객 정보 입력 스키마 생성"""
-    age: int = Field(..., description="고객의 나이", ge=19, le=100)  # 필수 입력 값
+    age: int = Field(..., description="고객의 나이", ge=19, le=100, examples=[35])  # 필수 입력 값
     gender: str = Field(..., description="고객의 성별", examples=["남", "여"])
     annual_income: float = Field(..., description="고객의 연간 소득", examples=[5000.0])
-    employment_years: int = Field(..., description="고갱의 근속연수", ge=0, le=50, examples=[5])
+    employment_years: int = Field(..., description="고객의 근속연수", ge=0, le=50, examples=[5])
     housing_type: str = Field(..., description="주거형태", examples=["자가"])
     credit_score: int = Field(..., description="고객의 신용 점수", ge=300, le=900, examples=[720])
     existing_loan_count: int = Field(..., description="기존대출건수", examples=[2])
@@ -32,9 +32,9 @@ class LoanRequest(BaseModel):
                     "annual_card_usage": 2400.0,
                     "debt_ratio": 35.5,
                     "loan_amount": 3000.0,
-                    "loan_purpose": "주택구입",
-                    "repayment_method": "원리금균등",
+                    "loan_purpose": "주택구입",                    
                     "loan_period": 36,
+                    "repayment_method": "원리금균등"
                 }
             ]
         }

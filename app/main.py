@@ -84,7 +84,11 @@ async def predict(request: LoanRequest):
             "latency_ms": round(latency_ms, 2)
         }
 
-        logger.info(f"PREDICTION_LOG: {json.dumps(log_data, ensure_ascii=False)}")
+        # CloudWatch Logs Insights에서 이 패턴으로 필터링하여 예측 로그만 쿼리하기 위한 키워드입니다.
+        # log_data 딕셔너리를 JSON 문자열로 변환해 logger.info()로 출력합니다
+        # logger.info(f"PREDICTION_LOG: {json.dumps(log_data, ensure_ascii=False)}")
+        log_data["log_type"] = "PREDICTION_LOG"
+        logger.info(json.dumps(log_data, ensure_ascii=False))
 
         #  결과 딕셔너리를 응답 스키마로 변환하여 반환
         return LoanResponse(**result)
