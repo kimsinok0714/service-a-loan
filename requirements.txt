@@ -1,6 +1,22 @@
+
+# 웹 프레임워크
 fastapi
 uvicorn
-joblib
-pandas
+
+# ML 모델 및 전치리
 scikit-learn
 xgboost
+
+# 데이터 처리
+pandas
+
+# 모델 직렬화
+joblib
+
+# 데이터 유효성 검사
+pydantic
+
+# S3에서 모델 다운로드
+boto3
+
+

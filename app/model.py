@@ -6,6 +6,8 @@ import joblib
 import pandas as pd
 from typing import Any
 from pathlib import Path
+import boto3
+
 
 
 logger = logging.getLogger(__name__)
@@ -37,7 +39,38 @@ class LoanModel:
         self.model_version: str = "1.0.0"
 
 
-    def load(self, model_dir: str = "models") -> None:
+    def load(self) -> None:
+        bucket = os.environ.get("MODEL_BUCKET")
+        prefix = os.environ.get("MODEL_PREFIX")
+
+        if bucket and prefix:
+            self._load_from_s3(bucket, prefix)
+        else:
+            self._load_from_local()
+
+
+    def _load_from_s3(self, bucket: str, prefix: str) -> None:
+        logger.info(f"S3에서 모델 로드: s3://{bucket}/{prefix}/")
+
+        s3 = boto3.client("s3", region_name= os.environ.get("AWS_REGION", "ap-northeast-2"))
+        self.pipeline = self._load_pkl_from_s3(s3, bucket, f"{prefix}/loan_pipeline.pkl")
+        self.label_encoders = self._load_pkl_from_s3(s3, bucket, f"{prefix}/label_encoders.pkl")
+        self.feature_names = self._load_pkl_from_s3(s3, bucket, f"{prefix}/featuer_names.pkl")
+
+        logger.info("S3에서 모델 로드 완료!!")
+
+
+
+    # S3에서 .pkl 파일을 읽어 Python 객체로 역직렬화하는 정적 메서드입니다.
+    @staticmethod
+    def _load_pkl_from_s3(s3, bucket: str, key: str):
+        response = s3.get_object(Bucket=bucket, Key=key)
+        return joblib.load(io.BytesIO(response['Body'].read()))
+    
+    
+    
+
+    def _load_from_local(self, model_dir: str = "models") -> None:
         script_dir = Path(__file__).parent
         model_path = script_dir.parent / model_dir
 
@@ -56,7 +89,32 @@ class LoanModel:
         self.feature_name = joblib.load(feature_names_path)
         self.label_encoders = joblib.load(label_encoders_path)
 
-        logging.info("모델 로드 완료!!")
+        logging.info("로컬 모델 로드 완료!!")
+
+
+
+
+
+    # def load(self, model_dir: str = "models") -> None:
+    #     script_dir = Path(__file__).parent
+    #     model_path = script_dir.parent / model_dir
+
+    #     pipeline_path = model_path / "loan_pipeline.pkl"
+    #     feature_names_path = model_path / "feature_names.pkl"
+    #     label_encoders_path = model_path / "label_encoders.pkl"
+
+    #     if not pipeline_path.exists():
+    #         raise FileNotFoundError(f"모델 파일을 찾을 수 없습니다: {pipeline_path}")
+    #     if not feature_names_path.exists():
+    #         raise FileNotFoundError(f"특성 이름 파일을 찾을 수 없습니다: {feature_names_path}")
+    #     if not label_encoders_path.exists():
+    #         raise FileExistsError(f"라벨 인코더 파일을 찾을 수 없습니다: {label_encoders_path}")
+        
+    #     self.pipeline = joblib.load(pipeline_path)
+    #     self.feature_name = joblib.load(feature_names_path)
+    #     self.label_encoders = joblib.load(label_encoders_path)
+
+    #     logging.info("모델 로드 완료!!")
 
 
 
