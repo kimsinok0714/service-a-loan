@@ -96,7 +96,7 @@ async def predict(request: LoanRequest):
     except RuntimeError as e:  # 모델이 로드되지 않은 경우
         raise HTTPException(status_code=503, detail=str(e))
     except ValueError as e: 
-        raise HTTPException(status_code=422, detail='입력값 처리 오류')
+        logger.error(f"입력값 처리 오류: {str(e)}")
+        raise HTTPException(status_code=422, detail=f'입력값 처리 오류: {str(e)}')
     except Exception as e: # 그 외 서버 내부 오류
         raise HTTPException(status_code=500)
-    
